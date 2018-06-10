@@ -26,8 +26,9 @@ static function int maxAmmo(class<Weapon> typeClass)
       return default.mortarAmmo;
     case class'EquipmentClasses.WeaponRocketPod':
       return default.rocketPodAmmo;
+
     default:
-      return -1;
+      return 0;
   }
 }
 

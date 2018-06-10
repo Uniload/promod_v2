@@ -21,10 +21,13 @@ static function int maxAmmo(class<Weapon> typeClass)
       return default.grapplerAmmo;
     case class'EquipmentClasses.WeaponChaingun':
       return default.chaingunAmmo;
+    case class'EquipmentClasses.WeaponBuckler':
+      return 1;
     case class'EquipmentClasses.WeaponRocketPod':
       return default.rocketPodAmmo;
+
     default:
-      return -1;
+      return 0;
   }
 }
 

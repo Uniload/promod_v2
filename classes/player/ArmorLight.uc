@@ -26,11 +26,15 @@ static function int maxAmmo(class<Weapon> typeClass)
       return default.SniperAmmo;
     case class'EquipmentClasses.WeaponRocketPod':
       return default.rocketPodAmmo;
+
     default:
-      return -1;
+      return 0;
   }
 }
 
+/**
+ *  Called when walking over dropped handGrenades
+ */
 static function int maxGrenades()
 {
 	return default.handGrenadeAmmo;

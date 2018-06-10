@@ -4,21 +4,19 @@ const VERSION = "0.0.1";
 const MOD_NAME = "promod_v2";
 
 var(Promod) config bool allowCommands;
-private var(Promod) bool trocIsOn;
+var(Promod) private bool trocIsOn;
 
 var(Vehicles) config bool enableFighterPod, enableRover, enableAssaultShip, enableJumpTank;
 var(Vehicles) config bool enableRoverGun;
 
-var(BaseDevices) config bool removeBaseTurrets, removeDeployableMines, removeDeployableTurrets;
+var(BaseDevices) config bool disableBaseTurrets, disableDeployableMines, disableDeployableTurrets;
 var(BaseDevices) config bool disableBaseRape;
-var(BaseDevices) config Array<class<BaseDevice>> BaseRapeProtectedDevices;
+var(BaseDevices) config Array<class<BaseDevice> > BaseRapeProtectedDevices;
 
 var(Player) config class<Gameplay.CombatRole> spawnCombatRole;
 var(Player) config float spawnInvincibleDelay;
 var(Player) config float heavyKnockbackScale;
 var(Player) config int heavyHealth;
-
-var(PlayerWeapons) config Array<Armor.QuantityWeapon> LightWeapons, MediumWeapons, HeavyWeapons;
 
 /* @Override */
 event PreBeginPlay()
@@ -31,11 +29,11 @@ event PreBeginPlay()
   ModifyMultiplayerStart();
   ModifyFlagThrower();
   ModifyCharacters();
-  if (removeBaseTurrets)
+  if (disableBaseTurrets)
     RemoveBaseTurrets();
-  if (removeDeployableMines)
+  if (disableDeployableMines)
     removeDeployableMines();
-  if (removeDeployableTurrets)
+  if (disableDeployableTurrets)
     removeDeployableTurrets();
   if (disableBaseRape)
     ModifyBaseDevices();
@@ -46,20 +44,24 @@ event string MutateSpawnCombatRoleClass(Character c)
 {
   Super.MutateSpawnCombatRoleClass(c);
 
+  //TODO default weapons / ammo per armorClass
+  c.team().combatRoleData[0].role.default.armorClass = class'ArmorLight';
+  c.team().combatRoleData[1].role.default.armorClass = class'ArmorMedium';
+  c.team().combatRoleData[2].role.default.armorClass = class'ArmorHeavy';
+
   c.team().combatRoleData[2].role.default.armorClass.default.knockbackScale = heavyKnockbackScale;
 	c.team().combatRoleData[2].role.default.armorClass.default.health = heavyHealth;
 
-  c.team().combatRoleData[0].role.default.armorClass.default.AllowedWeapons = LightWeapons;
-  c.team().combatRoleData[1].role.default.armorClass.default.AllowedWeapons = MediumWeapons;
-  c.team().combatRoleData[2].role.default.armorClass.default.AllowedWeapons = HeavyWeapons;
   return "";
 }
 
 /* @Override */
 event Actor ReplaceActor(Actor other)
 {
-  Super.ReplaceActor(other);
-  return None;
+  if (other.IsA('WeaponHandGrenade')) {
+    return Super.ReplaceActor(other);
+  }
+  return Super.ReplaceActor(other);
 }
 
 /* @Override */
@@ -69,7 +71,10 @@ simulated event Mutate(string command, PlayerController sender)
 
   if (!allowCommands || !sender.AdminManager.bAdmin) return;
 
-  if (command ~= "troc") {
+  if (command ~= "reload") {
+    LoadConfigVariables();
+  }
+  else if (command ~= "troc") {
     if (trocIsOn)
     {
       trocIsOn = false;
@@ -87,39 +92,45 @@ simulated event Mutate(string command, PlayerController sender)
 
 simulated function LoadConfigVariables()
 {
-  // check xStats SetStatSettings()
-  // will require all the logic to be simulated
+  Log("Loading config variables...");
+
+
+
+  Log("config variables loading completed.");
 }
 
 function ModifyVehicles()
 {
   local Gameplay.VehicleSpawnPoint pad;
-  local const class<Gameplay.Vehicle> FIGHTER_POD = class'VehicleClasses.VehiclePod';
-  local const class<Gameplay.Vehicle> ROVER_BUGGY = class'VehicleClasses.VehicleBuggy';
-  local const class<Gameplay.Vehicle> ASSAULT_SHIP = class'VehicleClasses.VehicleAssaultShip';
-  local const class<Gameplay.Vehicle> JUMP_TANK = class'VehicleClasses.VehicleTank';
 
   foreach AllActors(class'Gameplay.VehicleSpawnPoint', pad)
   {
     switch (pad.vehicleClass) {
-      case FIGHTER_POD:
-        enableFighterPod ?
-          pad.vehicleClass = class'FighterPod' : pad.setSwitchedOn(false);
-        break;
-      case ROVER_BUGGY:
-        if (enableRover) {
-          enableRoverGun ?
-            pad.vehicleClass = class'RoverBuggyGun' : pad.vehicleClass = class'RoverBuggy';
-        }
+
+      case class'VehicleClasses.VehiclePod':
+        if (enableFighterPod)
+          pad.vehicleClass = class'FighterPod';
         else pad.setSwitchedOn(false);
         break;
-      case ASSAULT_SHIP:
-        enableAssaultShip ?
-          pad.vehicleClass = class'AssaultShip' : pad.setSwitchedOn(false);
+
+      case class'VehicleClasses.VehicleBuggy':
+        if (enableRover) {
+          if (enableRoverGun)
+            pad.vehicleClass = class'RoverBuggyGun';
+          else pad.vehicleClass = class'RoverBuggy';
+        } else pad.setSwitchedOn(false);
         break;
-      case JUMP_TANK:
-        enableJumpTank ?
-          pad.vehicleClass = class'JumpTank' : pad.setSwitchedOn(false);
+
+      case class'VehicleClasses.VehicleAssaultShip':
+        if (enableAssaultShip)
+          pad.vehicleClass = class'AssaultShip';
+        else pad.setSwitchedOn(false);
+        break;
+
+      case class'VehicleClasses.VehicleTank':
+        if (enableJumpTank)
+          pad.vehicleClass = class'JumpTank';
+        else pad.setSwitchedOn(false);
         break;
     }
   }
@@ -154,8 +165,8 @@ function ModifyFlagThrower()
 
 function ModifyCharacters()
 {
-	Level.Game.Default.DefaultPlayerClassName = MOD_NAME $ ".promodMultiplayerCharacter";
-	Level.Game.DefaultPlayerClassName = MOD_NAME $ ".promodMultiplayerCharacter";
+	Level.Game.Default.DefaultPlayerClassName = MOD_NAME $ ".MultiplayerCharacter";
+	Level.Game.DefaultPlayerClassName = MOD_NAME $ ".MultiplayerCharacter";
 }
 
 function RemoveBaseTurrets()
@@ -170,7 +181,7 @@ function RemoveBaseTurrets()
       turretBase.Destroy();
 }
 
-function removeDeployableMines();
+function RemoveDeployableMines()
 {
   local BaseObjectClasses.BaseDeployableSpawnTurret turretDispenser;
 
@@ -178,7 +189,7 @@ function removeDeployableMines();
     turretDispenser.Destroy();
 }
 
-function removeDeployableTurrets();
+function RemoveDeployableTurrets()
 {
   local BaseObjectClasses.BaseDeployableSpawnShockMine mineDispenser;
 
@@ -186,7 +197,7 @@ function removeDeployableTurrets();
     mineDispenser.Destroy();
 }
 
-function ModifyBaseDevices(optional bool canBeDamaged = false)
+function ModifyBaseDevices(optional bool canBeDamaged)
 {
   local BaseDevice device;
   local int i;
@@ -209,10 +220,10 @@ defaultproperties
   enableJumpTank=true
 
   disableBaseRape=true
-  removeBaseTurrets=true
-  removeDeployableMines=true
-  removeDeployableTurrets=true
-  disableBaseRape=true
+  disableBaseTurrets=true
+  disableDeployableMines=true
+  disableDeployableTurrets=true
+
   BaseRapeProtectedDevices(1)=class'BaseObjectClasses.BaseCatapult'
   BaseRapeProtectedDevices(2)=class'BaseObjectClasses.BaseDeployableSpawn'
   BaseRapeProtectedDevices(3)=class'BaseObjectClasses.BaseInventoryStation'
@@ -220,38 +231,12 @@ defaultproperties
   BaseRapeProtectedDevices(5)=class'BaseObjectClasses.BaseResupply'
   BaseRapeProtectedDevices(6)=class'BaseObjectClasses.BaseSensor'
   BaseRapeProtectedDevices(7)=class'BaseObjectClasses.BaseTurret'
+  BaseRapeProtectedDevices(8)=class'myLevel.catapults'
 
   spawnCombatRole=class'EquipmentClasses.CombatRoleLight'
   spawnInvincibleDelay=2.500000
-  heavyKnockbackScale=1.175000
+  heavyKnockbackScale=1.000000
   heavyHealth=195
-
-  LightWeapons(1)=(typeClass=class'EquipmentClasses.WeaponSpinfusor',quantity=20)
-  LightWeapons(2)=(typeClass=class'EquipmentClasses.WeaponSniperRifle',quantity=10)
-  LightWeapons(3)=(typeClass=class'EquipmentClasses.WeaponGrenadeLauncher',quantity=15)
-  LightWeapons(4)=(typeClass=class'EquipmentClasses.WeaponRocketPod',quantity=42)
-  LightWeapons(5)=(typeClass=class'EquipmentClasses.WeaponBlaster')
-  LightWeapons(6)=(typeClass=class'EquipmentClasses.WeaponGrappler',quantity=7)
-  LightWeapons(7)=(typeClass=class'EquipmentClasses.WeaponBurner')
-  LightWeapons(8)=(typeClass=class'EquipmentClasses.WeaponChaingun',quantity=150)
-
-  MediumWeapons(1)=(typeClass=class'EquipmentClasses.WeaponSpinfusor',quantity=22)
-  MediumWeapons(2)=(typeClass=class'EquipmentClasses.WeaponBuckler',quantity=1)
-  MediumWeapons(3)=(typeClass=class'EquipmentClasses.WeaponGrenadeLauncher',quantity=17)
-  MediumWeapons(4)=(typeClass=class'EquipmentClasses.WeaponRocketPod',quantity=72)
-  MediumWeapons(5)=(typeClass=class'EquipmentClasses.WeaponBlaster')
-  MediumWeapons(6)=(typeClass=class'EquipmentClasses.WeaponGrappler',quantity=7)
-  MediumWeapons(7)=(typeClass=class'EquipmentClasses.WeaponBurner')
-  MediumWeapons(8)=(typeClass=class'EquipmentClasses.WeaponChaingun',quantity=200)
-
-  HeavyWeapons(1)=(typeClass=class'EquipmentClasses.WeaponSpinfusor',quantity=25)
-  HeavyWeapons(2)=(typeClass=class'EquipmentClasses.WeaponMortar',quantity=13)
-  HeavyWeapons(3)=(typeClass=class'EquipmentClasses.WeaponGrenadeLauncher',quantity=20)
-  HeavyWeapons(4)=(typeClass=class'EquipmentClasses.WeaponRocketPod',quantity=96)
-  HeavyWeapons(5)=(typeClass=class'EquipmentClasses.WeaponBlaster')
-  HeavyWeapons(6)=(typeClass=class'EquipmentClasses.WeaponGrappler',quantity=7)
-  HeavyWeapons(7)=(typeClass=class'EquipmentClasses.WeaponBurner')
-  HeavyWeapons(8)=(typeClass=class'EquipmentClasses.WeaponChaingun',quantity=300)
 
   FriendlyName="promod_v2"
   Description="Mutator code: promod_v2.promod"

@@ -1,1 +1,1 @@
-class promodRoverBuggyGun extends VehicleClasses.VehicleBuggy;
+class RoverBuggyGun extends VehicleClasses.VehicleBuggy;
