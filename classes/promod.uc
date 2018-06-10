@@ -29,6 +29,7 @@ event PreBeginPlay()
   ModifyMultiplayerStart();
   ModifyFlagThrower();
   ModifyCharacters();
+  //ModifyInventoryStations();
   if (disableBaseTurrets)
     RemoveBaseTurrets();
   if (disableDeployableMines)
@@ -38,6 +39,13 @@ event PreBeginPlay()
   if (disableBaseRape)
     ModifyBaseDevices();
 }
+
+/* @Override
+event string MutateSpawnLoadoutClass(Character c)
+{
+	return Super.MutateSpawnLoadoutClass(c);
+}
+*/
 
 /* @Override */
 event string MutateSpawnCombatRoleClass(Character c)
@@ -54,6 +62,14 @@ event string MutateSpawnCombatRoleClass(Character c)
 
   return "";
 }
+
+/* @Override
+event MutatePlayerMeshes(out Mesh characterMesh, out class<Jetpack> jetpackClass, out Mesh armsMesh)
+{
+  Log(characterMesh);
+	Super.MutatePlayerMeshes(characterMesh, jetpackClass, armsMesh);
+}
+*/
 
 /* @Override */
 event Actor ReplaceActor(Actor other)
@@ -202,12 +218,20 @@ function ModifyBaseDevices(optional bool canBeDamaged)
   local BaseDevice device;
   local int i;
 
-  Foreach AllActors(class'BaseDevice', device)
+  foreach AllActors(class'BaseDevice', device)
     for (i=0; i < BaseRapeProtectedDevices.Length; ++i)
-      if(device.IsA(BaseRapeProtectedDevices[i].Name))
-			   device.bCanBeDamaged = canBeDamaged;
+      if(device.IsA(BaseRapeProtectedDevices[i].Name) || Left(device.Name, 8) == "catapult")
+        device.bCanBeDamaged = canBeDamaged;
 }
+/*
+function ModifyInventoryStations()
+{
+  local InventoryStation is;
 
+  foreach AllActors(class'InventoryStation', is)
+    is.accessClass = class'x';
+}
+*/
 defaultproperties
 {
   allowCommands=true

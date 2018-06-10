@@ -27,14 +27,27 @@ static function int maxAmmo(class<Weapon> typeClass)
     case class'EquipmentClasses.WeaponRocketPod':
       return default.rocketPodAmmo;
 
+    case class'EquipmentClasses.WeaponBlaster':
+      return 1;
+    case class'EquipmentClasses.WeaponBurner':
+      return 1;
+
     default:
-      return 0;
+      return -1;
   }
 }
 
+/**
+ *  Called when walking over dropped handGrenades
+ */
 static function int maxGrenades()
 {
 	return default.handGrenadeAmmo;
+}
+
+static function class<HandGrenade> getHandGrenadeClass()
+{
+  return class'WeaponHandGrenade';
 }
 
 defaultproperties
@@ -45,5 +58,5 @@ defaultproperties
   chaingunAmmo=300
   mortarAmmo=13
   rocketPodAmmo=96
-  handGrenadeAmmo=5
+  handGrenadeAmmo=2
 }
