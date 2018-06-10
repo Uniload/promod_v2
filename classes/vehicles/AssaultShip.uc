@@ -1,0 +1,1 @@
+class AssaultShip extends VehicleClasses.VehicleAssaultShip;
