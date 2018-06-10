@@ -18,6 +18,8 @@ var(Player) config float spawnInvincibleDelay;
 var(Player) config float heavyKnockbackScale;
 var(Player) config int heavyHealth;
 
+// TODO Knife point-blank no dmg fix
+
 /* @Override */
 event PreBeginPlay()
 {
@@ -223,15 +225,19 @@ function ModifyBaseDevices(optional bool canBeDamaged)
       if(device.IsA(BaseRapeProtectedDevices[i].Name) || Left(device.Name, 8) == "catapult")
         device.bCanBeDamaged = canBeDamaged;
 }
-/*
+
 function ModifyInventoryStations()
 {
   local InventoryStation is;
 
   foreach AllActors(class'InventoryStation', is)
-    is.accessClass = class'x';
+  {
+    // TODO fix inventory invalid armor bug
+    log(is);
+    is.accessClass = class'InventoryStationAccess';
+  }
 }
-*/
+
 defaultproperties
 {
   allowCommands=true
@@ -255,7 +261,6 @@ defaultproperties
   BaseRapeProtectedDevices(5)=class'BaseObjectClasses.BaseResupply'
   BaseRapeProtectedDevices(6)=class'BaseObjectClasses.BaseSensor'
   BaseRapeProtectedDevices(7)=class'BaseObjectClasses.BaseTurret'
-  BaseRapeProtectedDevices(8)=class'myLevel.catapults'
 
   spawnCombatRole=class'EquipmentClasses.CombatRoleLight'
   spawnInvincibleDelay=2.500000
