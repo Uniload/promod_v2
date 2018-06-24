@@ -28,6 +28,21 @@ var(Weapons) config float weaponChaingun_minSpread, weaponChaingun_maxSpread, we
 
 // ========================= Weapons =========================
 
+
+replication
+{
+    // ========================= Weapons =========================
+
+    // Chaingun
+    if(Role == ROLE_Authority && (bNetDirty || bNetInitial))
+      weaponChaingun_minSpread, weaponChaingun_maxSpread, weaponChaingun_spinPeriod,
+      weaponChaingun_heatPeriod, weaponChaingun_coolDownThreshold,
+      weaponChaingun_speedCooldownFactor, weaponChaingun_projectileVelocity, weaponChaingun_projectileInheritedVelFactor,
+      weaponChaingun_roundsPerSecond, projectileChaingun_damageAmt, projectileChaingun_Knockback;
+
+    // ========================= Weapons =========================
+}
+
 // TODO Knife point-blank no dmg fix
 
 /* @Override */
@@ -268,8 +283,8 @@ function ModifyChaingun()
   class'EquipmentClasses.WeaponChaingun'.default.projectileInheritedVelFactor = weaponChaingun_projectileInheritedVelFactor;
   class'EquipmentClasses.WeaponChaingun'.default.roundsPerSecond = weaponChaingun_roundsPerSecond;
 
-  class'Gameplay.ChaingunProjectile'.default.damageAmt = projectileChaingun_damageAmt;
-  class'Gameplay.ChaingunProjectile'.default.Knockback = projectileChaingun_Knockback;
+  class'EquipmentClasses.ChaingunProjectile'.default.damageAmt = projectileChaingun_damageAmt;
+  class'EquipmentClasses.ChaingunProjectile'.default.Knockback = projectileChaingun_Knockback;
 }
 // ========================= Weapons =========================
 
