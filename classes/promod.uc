@@ -20,23 +20,31 @@ var(Player) config int heavyHealth;
 
 // TODO Knife point-blank no dmg fix
 
+
+replication
+{
+    if(Role == ROLE_Authority && (bNetDirty || bNetInitial))
+      // ========================= Globals =========================
+
+      // Vehicles
+      DisabledActors, enableFighterPod, enableRover, enableAssaultShip, enableJumpTank, enableRoverGun,
+
+      // Base
+      disableBaseRape, BaseRapeProtectedDevices,
+
+      // Spawn
+      spawnCombatRole, spawnInvincibleDelay, heavyKnockbackScale, heavyHealth
+
+      // ========================= Globals =========================
+    ;
+}
+
 /* @Override */
 event PreBeginPlay()
 {
   Super.PreBeginPlay();
 
-  LoadConfigVariables();
-
-  ModifyVehicles();
-  ModifyMultiplayerStart();
-  ModifyFlagThrower();
-  ModifyCharacters();
-
-  DestroyDisabledActors();
-
-  if (disableBaseRape)
-    ModifyBaseDevices();
-
+  ExecuteModifications();
 }
 
 /* @Override
@@ -80,6 +88,13 @@ event Actor ReplaceActor(Actor other)
 }
 
 /* @Override */
+simulated event PostNetReceive()
+{
+    if (Level.NetMode != NM_DedicatedServer)
+      ExecuteModifications();
+}
+
+/* @Override */
 simulated event Mutate(string command, PlayerController sender)
 {
   local string ParsedString;
@@ -112,6 +127,21 @@ simulated function LoadConfigVariables()
 
 
   Log("config variables loading completed.");
+}
+
+function ExecuteModifications()
+{
+  LoadConfigVariables();
+
+  ModifyVehicles();
+  ModifyMultiplayerStart();
+  ModifyFlagThrower();
+  ModifyCharacters();
+
+  DestroyDisabledActors();
+
+  if (disableBaseRape)
+    ModifyBaseDevices();
 }
 
 function ModifyVehicles()
@@ -223,6 +253,12 @@ function ModifyInventoryStations()
 
 defaultproperties
 {
+  bNetNotify=true
+  bAlwaysRelevant=true
+  bOnlyDirtyReplication=true
+  NetUpdateFrequency=1
+  netPriority=20
+
   allowCommands=true
   trocIsOn=false
 
