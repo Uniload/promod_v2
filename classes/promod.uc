@@ -254,13 +254,13 @@ defaultproperties
   disableDeployableMines=true
   disableDeployableTurrets=true
 
-  BaseRapeProtectedDevices(1)=class'BaseObjectClasses.BaseCatapult'
-  BaseRapeProtectedDevices(2)=class'BaseObjectClasses.BaseDeployableSpawn'
-  BaseRapeProtectedDevices(3)=class'BaseObjectClasses.BaseInventoryStation'
-  BaseRapeProtectedDevices(4)=class'BaseObjectClasses.BasePowerGenerator'
-  BaseRapeProtectedDevices(5)=class'BaseObjectClasses.BaseResupply'
-  BaseRapeProtectedDevices(6)=class'BaseObjectClasses.BaseSensor'
-  BaseRapeProtectedDevices(7)=class'BaseObjectClasses.BaseTurret'
+  BaseRapeProtectedDevices(0)=class'BaseObjectClasses.BaseCatapult'
+  BaseRapeProtectedDevices(1)=class'BaseObjectClasses.BaseDeployableSpawn'
+  BaseRapeProtectedDevices(2)=class'BaseObjectClasses.BaseInventoryStation'
+  BaseRapeProtectedDevices(3)=class'BaseObjectClasses.BasePowerGenerator'
+  BaseRapeProtectedDevices(4)=class'BaseObjectClasses.BaseResupply'
+  BaseRapeProtectedDevices(5)=class'BaseObjectClasses.BaseSensor'
+  BaseRapeProtectedDevices(6)=class'BaseObjectClasses.BaseTurret'
 
   spawnCombatRole=class'EquipmentClasses.CombatRoleLight'
   spawnInvincibleDelay=2.500000
