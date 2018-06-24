@@ -18,6 +18,16 @@ var(Player) config float spawnInvincibleDelay;
 var(Player) config float heavyKnockbackScale;
 var(Player) config int heavyHealth;
 
+// ========================= Weapons =========================
+
+// Chaingun
+var(Weapons) config float weaponChaingun_minSpread, weaponChaingun_maxSpread, weaponChaingun_spinPeriod,
+                          weaponChaingun_heatPeriod, weaponChaingun_coolDownThreshold,
+                          weaponChaingun_speedCooldownFactor, weaponChaingun_projectileVelocity, weaponChaingun_projectileInheritedVelFactor,
+                          weaponChaingun_roundsPerSecond, projectileChaingun_damageAmt, projectileChaingun_Knockback;
+
+// ========================= Weapons =========================
+
 // TODO Knife point-blank no dmg fix
 
 /* @Override */
@@ -27,6 +37,7 @@ event PreBeginPlay()
 
   LoadConfigVariables();
 
+  ModifyWeapons();
   ModifyVehicles();
   ModifyMultiplayerStart();
   ModifyFlagThrower();
@@ -238,6 +249,30 @@ function ModifyInventoryStations()
   }
 }
 
+
+// ========================= Weapons =========================
+function ModifyWeapons()
+{
+  ModifyChaingun();
+}
+
+function ModifyChaingun()
+{
+  class'EquipmentClasses.WeaponChaingun'.default.minSpread = weaponChaingun_minSpread;
+  class'EquipmentClasses.WeaponChaingun'.default.maxSpread = weaponChaingun_maxSpread;
+  class'EquipmentClasses.WeaponChaingun'.default.spinPeriod = weaponChaingun_spinPeriod;
+  class'EquipmentClasses.WeaponChaingun'.default.heatPeriod = weaponChaingun_heatPeriod;
+  class'EquipmentClasses.WeaponChaingun'.default.coolDownThreshold = weaponChaingun_coolDownThreshold;
+  class'EquipmentClasses.WeaponChaingun'.default.speedCooldownFactor = weaponChaingun_speedCooldownFactor;
+  class'EquipmentClasses.WeaponChaingun'.default.projectileVelocity = weaponChaingun_projectileVelocity;
+  class'EquipmentClasses.WeaponChaingun'.default.projectileInheritedVelFactor = weaponChaingun_projectileInheritedVelFactor;
+  class'EquipmentClasses.WeaponChaingun'.default.roundsPerSecond = weaponChaingun_roundsPerSecond;
+
+  class'Gameplay.ChaingunProjectile'.default.damageAmt = projectileChaingun_damageAmt;
+  class'Gameplay.ChaingunProjectile'.default.Knockback = projectileChaingun_Knockback;
+}
+// ========================= Weapons =========================
+
 defaultproperties
 {
   allowCommands=true
@@ -266,7 +301,24 @@ defaultproperties
   spawnInvincibleDelay=2.500000
   heavyKnockbackScale=1.000000
   heavyHealth=195
-
+  
   FriendlyName="promod_v2"
   Description="Mutator code: promod_v2.promod"
+
+  // ========================= Weapons =========================
+
+  // Chaingun
+  weaponChaingun_minSpread=1.000000
+  weaponChaingun_maxSpread=4.000000
+  weaponChaingun_spinPeriod=0.500000
+  weaponChaingun_heatPeriod=3.000000
+  weaponChaingun_coolDownThreshold=1.700000
+  weaponChaingun_speedCooldownFactor=0.000800
+  weaponChaingun_projectileVelocity=5500.000000
+  weaponChaingun_projectileInheritedVelFactor=1.000000
+  weaponChaingun_roundsPerSecond=12.000000
+
+  projectileChaingun_damageAmt=6.000000
+  projectileChaingun_Knockback=25000.000000
+  // ========================= Weapons =========================
 }
