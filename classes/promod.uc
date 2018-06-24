@@ -5,11 +5,11 @@ const MOD_NAME = "promod_v2";
 
 var(Promod) config bool allowCommands;
 var(Promod) private bool trocIsOn;
+var(Promod) config Array<class<Actor> > DisabledActors;
 
 var(Vehicles) config bool enableFighterPod, enableRover, enableAssaultShip, enableJumpTank;
 var(Vehicles) config bool enableRoverGun;
 
-var(BaseDevices) config bool disableBaseTurrets, disableDeployableMines, disableDeployableTurrets;
 var(BaseDevices) config bool disableBaseRape;
 var(BaseDevices) config Array<class<BaseDevice> > BaseRapeProtectedDevices;
 
@@ -31,15 +31,12 @@ event PreBeginPlay()
   ModifyMultiplayerStart();
   ModifyFlagThrower();
   ModifyCharacters();
-  //ModifyInventoryStations();
-  if (disableBaseTurrets)
-    RemoveBaseTurrets();
-  if (disableDeployableMines)
-    removeDeployableMines();
-  if (disableDeployableTurrets)
-    removeDeployableTurrets();
+
+  DestroyDisabledActors();
+
   if (disableBaseRape)
     ModifyBaseDevices();
+
 }
 
 /* @Override
@@ -187,32 +184,18 @@ function ModifyCharacters()
 	Level.Game.DefaultPlayerClassName = MOD_NAME $ ".MultiplayerCharacter";
 }
 
-function RemoveBaseTurrets()
+function DestroyDisabledActors()
 {
-  local BaseObjectClasses.BaseTurret turret;
-  local BaseObjectClasses.StaticMeshRemovable turretBase;
+  local Actor actor;
+  local int i;
 
-  foreach AllActors(class'BaseObjectClasses.BaseTurret', turret)
-      turret.Destroy();
-
-  foreach AllActors(class'BaseObjectClasses.StaticMeshRemovable', turretBase)
-      turretBase.Destroy();
-}
-
-function RemoveDeployableMines()
-{
-  local BaseObjectClasses.BaseDeployableSpawnTurret turretDispenser;
-
-  foreach AllActors(class'BaseObjectClasses.BaseDeployableSpawnTurret', turretDispenser)
-    turretDispenser.Destroy();
-}
-
-function RemoveDeployableTurrets()
-{
-  local BaseObjectClasses.BaseDeployableSpawnShockMine mineDispenser;
-
-  foreach AllActors(class'BaseObjectClasses.BaseDeployableSpawnShockMine', mineDispenser)
-    mineDispenser.Destroy();
+  for (i=0; i < DisabledActors.Length; ++i) {
+    foreach ChildActors(DisabledActors[i], actor)
+      actor.Destroy();
+    
+    foreach AllActors(DisabledActors[i], actor)
+      actor.Destroy();
+  }
 }
 
 function ModifyBaseDevices(optional bool canBeDamaged)
@@ -250,9 +233,6 @@ defaultproperties
   enableJumpTank=true
 
   disableBaseRape=true
-  disableBaseTurrets=true
-  disableDeployableMines=true
-  disableDeployableTurrets=true
 
   BaseRapeProtectedDevices(1)=class'BaseObjectClasses.BaseCatapult'
   BaseRapeProtectedDevices(2)=class'BaseObjectClasses.BaseDeployableSpawn'
@@ -261,6 +241,11 @@ defaultproperties
   BaseRapeProtectedDevices(5)=class'BaseObjectClasses.BaseResupply'
   BaseRapeProtectedDevices(6)=class'BaseObjectClasses.BaseSensor'
   BaseRapeProtectedDevices(7)=class'BaseObjectClasses.BaseTurret'
+
+  DisabledActors(0)=class'BaseObjectClasses.BaseDeployableSpawnTurret'
+  DisabledActors(1)=class'BaseObjectClasses.BaseTurret'
+  DisabledActors(2)=class'BaseObjectClasses.StaticMeshRemovable'
+  DisabledActors(3)=class'BaseObjectClasses.BaseDeployableSpawnShockMine'
 
   spawnCombatRole=class'EquipmentClasses.CombatRoleLight'
   spawnInvincibleDelay=2.500000
