@@ -23,7 +23,7 @@ var(Player) config int heavyHealth;
 
 replication
 {
-    if(Role == ROLE_Authority && (bNetDirty || bNetInitial))
+    reliable if(Role == ROLE_Authority && (bNetDirty || bNetInitial))
       // ========================= Globals =========================
 
       // Vehicles
@@ -90,6 +90,8 @@ event Actor ReplaceActor(Actor other)
 /* @Override */
 simulated event PostNetReceive()
 {
+    Log("PostNetReceive");
+
     if (Level.NetMode != NM_DedicatedServer)
       ExecuteModifications();
 }
@@ -131,6 +133,7 @@ simulated function LoadConfigVariables()
 
 function ExecuteModifications()
 {
+  Log("ExecuteModifications start");
   LoadConfigVariables();
 
   ModifyVehicles();
@@ -142,6 +145,7 @@ function ExecuteModifications()
 
   if (disableBaseRape)
     ModifyBaseDevices();
+  Log("ExecuteModifications end");
 }
 
 function ModifyVehicles()
@@ -253,6 +257,7 @@ function ModifyInventoryStations()
 
 defaultproperties
 {
+  Role=ROLE_Authority
   bNetNotify=true
   bAlwaysRelevant=true
   bOnlyDirtyReplication=true
