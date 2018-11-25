@@ -19,32 +19,27 @@ var(Player) config float heavyKnockbackScale;
 var(Player) config int heavyHealth;
 
 // TODO Knife point-blank no dmg fix
-
+var private ClientReplication crInstance;
 
 replication
 {
-    reliable if(Role == ROLE_Authority && (bNetDirty || bNetInitial))
+    //reliable if(Role == ROLE_Authority && (bNetDirty || bNetInitial))
       // ========================= Globals =========================
-
-      // Vehicles
-      DisabledActors, enableFighterPod, enableRover, enableAssaultShip, enableJumpTank, enableRoverGun,
-
-      // Base
-      disableBaseRape, BaseRapeProtectedDevices,
-
+      reliable if (bNetInitial)
       // Spawn
-      spawnCombatRole, spawnInvincibleDelay, heavyKnockbackScale, heavyHealth
+      crInstance
 
       // ========================= Globals =========================
     ;
 }
 
 /* @Override */
-event PreBeginPlay()
+simulated event PreBeginPlay()
 {
   Super.PreBeginPlay();
 
   ExecuteModifications();
+  crInstance = spawn(class'ClientReplication');
 }
 
 /* @Override
@@ -101,7 +96,7 @@ simulated event Mutate(string command, PlayerController sender)
 {
   local string ParsedString;
 
-  if (!allowCommands || !sender.AdminManager.bAdmin) return;
+  //if (!allowCommands || !sender.AdminManager.bAdmin) return;
 
   if (command ~= "reload") {
     LoadConfigVariables();
@@ -126,12 +121,12 @@ simulated function LoadConfigVariables()
 {
   Log("Loading config variables...");
 
-
+  heavyHealth++;
 
   Log("config variables loading completed.");
 }
 
-function ExecuteModifications()
+simulated function ExecuteModifications()
 {
   Log("ExecuteModifications start");
   LoadConfigVariables();
@@ -226,7 +221,7 @@ function DestroyDisabledActors()
   for (i=0; i < DisabledActors.Length; ++i) {
     foreach ChildActors(DisabledActors[i], actor)
       actor.Destroy();
-    
+
     foreach AllActors(DisabledActors[i], actor)
       actor.Destroy();
   }
@@ -259,8 +254,8 @@ defaultproperties
 {
   Role=ROLE_Authority
   bNetNotify=true
-  bAlwaysRelevant=true
-  bOnlyDirtyReplication=true
+  bAlwaysRelevant=false
+  bOnlyDirtyReplication=false
   NetUpdateFrequency=1
   netPriority=20
 
@@ -274,6 +269,8 @@ defaultproperties
   enableJumpTank=true
 
   disableBaseRape=true
+
+  crInstance=None
 
   BaseRapeProtectedDevices(0)=class'BaseObjectClasses.BaseCatapult'
   BaseRapeProtectedDevices(1)=class'BaseObjectClasses.BaseDeployableSpawn'
