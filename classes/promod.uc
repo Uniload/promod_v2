@@ -20,6 +20,7 @@ var(Player) config int heavyHealth;
 
 // TODO Knife point-blank no dmg fix
 var private ClientReplication crInstance;
+var private PackReplication prInstance;
 
 replication
 {
@@ -27,10 +28,15 @@ replication
       // ========================= Globals =========================
       reliable if (bNetInitial)
       // Spawn
-      crInstance
+      crInstance, prInstance
 
       // ========================= Globals =========================
     ;
+}
+
+static function Name getLogName()
+{
+  return Name("promod_v2");
 }
 
 /* @Override */
@@ -40,6 +46,7 @@ simulated event PreBeginPlay()
 
   ExecuteModifications();
   crInstance = spawn(class'ClientReplication');
+  prInstance = spawn(class'PackReplication');
 }
 
 /* @Override
@@ -74,21 +81,20 @@ event MutatePlayerMeshes(out Mesh characterMesh, out class<Jetpack> jetpackClass
 */
 
 /* @Override */
-event Actor ReplaceActor(Actor other)
+simulated event Actor ReplaceActor(Actor other)
 {
-  if (other.IsA('WeaponHandGrenade')) {
-    return Super.ReplaceActor(other);
+  if(Other.IsA('RepairPack'))
+  {
+    RepairPack(Other).activePeriod = prInstance.repair_activePeriod;
+    RepairPack(Other).passivePeriod = prInstance.repair_passivePeriod;
+    RepairPack(Other).radius = prInstance.repair_radius;
+    RepairPack(Other).deactivatingDuration = prInstance.repair_deactivationDuration;
+    RepairPack(Other).durationSeconds = prInstance.repair_durationSeconds;
+    RepairPack(Other).rampUpTimeSeconds = prInstance.repair_rampUpTimeSeconds;
+    RepairPack(Other).rechargeTimeSeconds = prInstance.repair_rechargeTimeSeconds;
+    RepairPack(Other).thirdPersonMesh = prInstance.repair_thirdPersonMesh;
   }
   return Super.ReplaceActor(other);
-}
-
-/* @Override */
-simulated event PostNetReceive()
-{
-    Log("PostNetReceive");
-
-    if (Level.NetMode != NM_DedicatedServer)
-      ExecuteModifications();
 }
 
 /* @Override */
@@ -119,16 +125,16 @@ simulated event Mutate(string command, PlayerController sender)
 
 simulated function LoadConfigVariables()
 {
-  Log("Loading config variables...");
+  Log("Loading config variables...", class'promod'.static.getLogName());
 
   heavyHealth++;
 
-  Log("config variables loading completed.");
+  Log("config variables loading completed.", class'promod'.static.getLogName());
 }
 
 simulated function ExecuteModifications()
 {
-  Log("ExecuteModifications start");
+  Log("ExecuteModifications start", class'promod'.static.getLogName());
   LoadConfigVariables();
 
   ModifyVehicles();
@@ -140,7 +146,7 @@ simulated function ExecuteModifications()
 
   if (disableBaseRape)
     ModifyBaseDevices();
-  Log("ExecuteModifications end");
+  Log("ExecuteModifications end", class'promod'.static.getLogName());
 }
 
 function ModifyVehicles()
@@ -245,7 +251,7 @@ function ModifyInventoryStations()
   foreach AllActors(class'InventoryStation', is)
   {
     // TODO fix inventory invalid armor bug
-    log(is);
+    log(is, class'promod'.static.getLogName());
     is.accessClass = class'InventoryStationAccess';
   }
 }
