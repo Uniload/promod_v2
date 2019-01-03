@@ -85,22 +85,58 @@ event MutatePlayerMeshes(out Mesh characterMesh, out class<Jetpack> jetpackClass
  */
 event Actor ReplaceActor(Actor other)
 {
-    if(Other.IsA('RepairPack'))
-    {
-        RepairPack(Other).activePeriod = prInstance.repair_activePeriod;
-        RepairPack(Other).passivePeriod = prInstance.repair_passivePeriod;
-        RepairPack(Other).radius = prInstance.repair_radius;
-        RepairPack(Other).deactivatingDuration = prInstance.repair_deactivatingDuration;
-        RepairPack(Other).durationSeconds = prInstance.repair_durationSeconds;
-        RepairPack(Other).rampUpTimeSeconds = prInstance.repair_rampUpTimeSeconds;
-        RepairPack(Other).rechargeTimeSeconds = prInstance.repair_rechargeTimeSeconds;
-        RepairPack(Other).thirdPersonMesh = prInstance.repair_thirdPersonMesh;
-        RepairPack(Other).activeHealthPerPeriod = prInstance.repair_activeHealthPerPeriod;
-        RepairPack(Other).activeExtraSelfHealthPerPeriod = prInstance.repair_activeExtraSelfHealthPerPeriod;
-        RepairPack(Other).passiveHealthPerPeriod = prInstance.repair_passiveHealthPerPeriod;
-        RepairPack(Other).accumulationScale = prInstance.repair_accumulationScale;
+    switch (true) {
+        case other.IsA('RepairPack'):
+            RepairPack(other).activePeriod = prInstance.repair_activePeriod;
+            RepairPack(other).passivePeriod = prInstance.repair_passivePeriod;
+            RepairPack(other).radius = prInstance.repair_radius;
+            RepairPack(other).deactivatingDuration = prInstance.repair_deactivatingDuration;
+            RepairPack(other).durationSeconds = prInstance.repair_durationSeconds;
+            RepairPack(other).rampUpTimeSeconds = prInstance.repair_rampUpTimeSeconds;
+            RepairPack(other).rechargeTimeSeconds = prInstance.repair_rechargeTimeSeconds;
+            RepairPack(other).activeHealthPerPeriod = prInstance.repair_activeHealthPerPeriod;
+            RepairPack(other).activeExtraSelfHealthPerPeriod = prInstance.repair_activeExtraSelfHealthPerPeriod;
+            RepairPack(other).passiveHealthPerPeriod = prInstance.repair_passiveHealthPerPeriod;
+            RepairPack(other).accumulationScale = prInstance.repair_accumulationScale;
+            return Super.ReplaceActor(other);
+
+        case other.IsA('EnergyPack'):
+            EnergyPack(other).deactivatingDuration = prInstance.energy_deactivatingDuration;
+            EnergyPack(other).durationSeconds = prInstance.energy_durationSeconds;
+            EnergyPack(other).rampUpTimeSeconds = prInstance.energy_rampUpTimeSeconds;
+            EnergyPack(other).rechargeTimeSeconds = prInstance.energy_rechargeTimeSeconds;
+            EnergyPack(other).boostImpulsePerSecond = prInstance.energy_boostImpulsePerSecond;
+            EnergyPack(other).rechargeScale = prInstance.energy_rechargeScale;
+            return Super.ReplaceActor(other);
+
+        case other.IsA('ShieldPack'):
+            ShieldPack(other).deactivatingDuration = prInstance.shield_deactivatingDuration;
+            ShieldPack(other).durationSeconds = prInstance.shield_durationSeconds;
+            ShieldPack(other).rampUpTimeSeconds = prInstance.shield_rampUpTimeSeconds;
+            ShieldPack(other).rechargeTimeSeconds = prInstance.shield_rechargeTimeSeconds;
+            ShieldPack(other).passiveFractionDamageBlocked = prInstance.shield_passiveFractionDamageBlocked;
+            ShieldPack(other).activeFractionDamageBlocked = prInstance.shield_activeFractionDamageBlocked;
+            ShieldPack(other).passiveIdleMaterial = prInstance.shield_passiveIdleMaterial;
+            ShieldPack(other).activeIdleMaterial = prInstance.shield_activeIdleMaterial;
+            ShieldPack(other).passiveHitMaterial = prInstance.shield_passiveHitMaterial;
+            ShieldPack(other).activeHitMaterial = prInstance.shield_activeHitMaterial;
+            ShieldPack(other).hitStayTime = prInstance.shield_hitStayTime;
+            return Super.ReplaceActor(other);
+
+        case other.IsA('SpeedPack'):
+            SpeedPack(other).deactivatingDuration = prInstance.speed_deactivatingDuration;
+            SpeedPack(other).durationSeconds = prInstance.speed_durationSeconds;
+            SpeedPack(other).rampUpTimeSeconds = prInstance.speed_rampUpTimeSeconds;
+            SpeedPack(other).rechargeTimeSeconds = prInstance.speed_rechargeTimeSeconds;
+            SpeedPack(other).refireRateScale = prInstance.speed_refireRateScale;
+            SpeedPack(other).passiveRefireRateScale = prInstance.speed_passiveRefireRateScale;
+            SpeedPack(other).passiveMaterial = prInstance.speed_passiveMaterial;
+            SpeedPack(other).activeMaterial = prInstance.speed_activeMaterial;
+            return Super.ReplaceActor(other);
+
+        default:
+            return Super.ReplaceActor(other);
     }
-    return Super.ReplaceActor(other);
 }
 
 /* @Override */
@@ -111,7 +147,7 @@ simulated event Mutate(string command, PlayerController sender)
     //if (!allowCommands || !sender.AdminManager.bAdmin) return;
 
     if (command ~= "reload") {
-        LoadConfigVariables()();
+        LoadConfigVariables();
     }
     else if (command ~= "troc") {
         if (trocIsOn)

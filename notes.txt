@@ -1,0 +1,1 @@
+speedpack passive and active reload animations will be off untill the pack is a ctivated for the first time.
