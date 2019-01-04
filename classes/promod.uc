@@ -19,7 +19,6 @@ var(Player) config float heavyKnockbackScale;
 var(Player) config int heavyHealth;
 
 // TODO Knife point-blank no dmg fix
-var private ClientReplication crInstance;
 var private PackReplication prInstance;
 
 replication
@@ -28,7 +27,7 @@ replication
       // ========================= Globals =========================
       reliable if (bNetInitial)
       // Spawn
-      crInstance, prInstance
+      prInstance
 
       // ========================= Globals =========================
     ;
@@ -45,7 +44,6 @@ simulated event PreBeginPlay()
     Super.PreBeginPlay();
 
     ExecuteModifications();
-    crInstance = spawn(class'ClientReplication');
     prInstance = spawn(class'PackReplication');
 }
 
@@ -71,14 +69,6 @@ event string MutateSpawnCombatRoleClass(Character c)
 
     return "";
 }
-
-/* @Override
-event MutatePlayerMeshes(out Mesh characterMesh, out class<Jetpack> jetpackClass, out Mesh armsMesh)
-{
-  Log(characterMesh);
-    Super.MutatePlayerMeshes(characterMesh, jetpackClass, armsMesh);
-}
-*/
 
 /* @Override
  * Does not run on client ever!
@@ -133,6 +123,10 @@ event Actor ReplaceActor(Actor other)
             SpeedPack(other).passiveMaterial = prInstance.speed_passiveMaterial;
             SpeedPack(other).activeMaterial = prInstance.speed_activeMaterial;
             return Super.ReplaceActor(other);
+
+        case other.IsA('CloakPack'):
+            other.Destroy();
+            return ReplaceWith(other, "Equipmentclasses.ShieldPack");
 
         default:
             return Super.ReplaceActor(other);
@@ -314,8 +308,6 @@ defaultproperties
     enableJumpTank=true
 
     disableBaseRape=true
-
-    crInstance=None
 
     BaseRapeProtectedDevices(0)=class'BaseObjectClasses.BaseCatapult'
     BaseRapeProtectedDevices(1)=class'BaseObjectClasses.BaseDeployableSpawn'
